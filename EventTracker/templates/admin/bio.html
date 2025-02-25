@@ -1,0 +1,82 @@
+<div class="modal fade" id="profile">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"><b>User Profile</b></h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" id="profileUpdateForm" method="POST" action="{% url 'update_profile_ajax' %}"
+          enctype="multipart/form-data">
+
+          <!-- Form For Update Goes Here -->
+          <legend>User Details</legend>
+         {{ user_update_form.as_p }}
+      
+         {{ employee_update_form.as_p }}
+      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i
+            class="fa fa-close"></i> Close</button>
+        <button type="submit" class="btn btn-success btn-flat" name="save"><i class="fa fa-check-square-o"></i>
+          Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+    {% block custom_js %}
+    <script>
+$(document).on('click', '#update', function(e) {
+    e.preventDefault();
+    $.ajax({
+         url: "{% url 'update_profile_ajax' %}",
+         type: "GET",
+         success: function(data) {
+             // Load the response (bio.html with the update form) into the modal
+             $('#profileModalContent').html(data);
+             // Optionally initialize select2 if needed
+             $('#skill_id').select2({
+                 placeholder: 'Search and select skills',
+                 allowClear: true,
+             });
+             // Show the modal
+             $('#profile').modal('show');
+         },
+         error: function(xhr, status, error) {
+             console.log("Error loading profile form: " + error);
+         }
+    });
+});
+
+$(document).on('submit', '#profileUpdateForm', function(e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    $.ajax({
+         url: "{% url 'update_profile_ajax' %}",
+         type: "POST",
+         data: formData,
+         processData: false,
+         contentType: false,
+         success: function(data) {
+              if(data.success) {
+                  $('#profile').modal('hide');
+                  // Optionally refresh the page or update the displayed profile info
+                  location.reload();
+              } else {
+                  console.log("Form errors: ", data.errors);
+                  // Optionally display error messages within the modal
+              }
+         },
+         error: function(xhr, status, error) {
+              console.log("Error updating profile: " + error);
+         }
+    });
+});
+    
+    </script>
+    
+
+     {% endblock custom_js %}

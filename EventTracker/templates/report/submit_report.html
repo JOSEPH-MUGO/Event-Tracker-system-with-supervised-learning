@@ -1,0 +1,67 @@
+{% extends 'admin/root.html' %}
+{% load static %}
+{% block title %}Create Report{% endblock title %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="col-md-12">
+      <div class="box box-primary">
+        <div class="box-header with-border text-center">
+          {% if assigned %}
+            <h3 class="box-title"><b>Department of {{ assignment.employee.department }}</b></h3>
+            <p><b>Report for the Event: {{ assignment.event }}</b> held in <b>{{ assignment.event.venue }}</b> assigned on <b>{{ assignment.assign_date }}</b></p>
+            <p><i>Written by {{ assignment.employee }}</i></p>
+          {% else %}
+            <h3 class="box-title">No Event Assigned</h3>
+            <p>You have no event to write a report on.</p>
+          {% endif %}
+        </div>
+        <form method="post" enctype="multipart/form-data" action="{% if assigned %}{% url 'submitReport' assign_id=assignment.id %}{% endif %}" class="form-horizontal">
+          {% csrf_token %}
+          <div class="box-body">
+            {{ report_form.media }}  {# This outputs Summernote's CSS/JS tags #}
+            <div class="form-group">
+              <label for="{{ report_form.content.id_for_label }}" class="col-sm-2 control-label">Content</label>
+              <div class="col-sm-10">
+                {{ report_form.content|safe }}
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="{{ report_form.file.id_for_label }}" class="col-sm-2 control-label">File</label>
+              <div class="col-sm-10">
+                {{ report_form.file }}
+                <p class="help-block">Maximum file size: 7 MB. You can upload multiple files if supported by your design.</p>
+              </div>
+            </div>
+          </div>
+          <div class="box-footer">
+            <button type="submit" class="btn btn-primary pull-right"
+              {% if not assigned or assignment.event.status != 'completed' %}disabled title="You can only submit a report after the event is completed."{% endif %}>
+              Submit Report
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+
+{% block custom_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    {% if messages %}
+      {% for message in messages %}
+        Swal.fire({
+          title: "{{ message.tags|capfirst }}",
+          text: "{{ message }}",
+          icon: "{{ message.tags }}",
+          confirmButtonText: 'OK'
+        });
+      {% endfor %}
+    {% endif %}
+});
+</script>
+{% endblock custom_js %}

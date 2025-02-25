@@ -1,0 +1,188 @@
+{% extends 'admin/root.html' %}
+{% load static %}
+{% block content %}
+<!-- Main content -->
+<section class="content">
+    <!-- Small boxes (Stat box) -->
+    <div class="row">
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>{{ event_category_count }}</h3>
+                    <p>No. of Event Categories</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-tasks"></i>
+                </div>
+                <a href="{% url 'createEventCategory' %}" class="small-box-footer">More Info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-green">
+                <div class="inner">
+                    <h3>{{ event_count }}</h3>
+                    <p>No. of Events</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-calendar"></i>
+                </div>
+                <a href="{% url 'viewEvents' %}" class="small-box-footer">More Info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!--col-->
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-red">
+                <div class="inner">
+                    <h3>{{ employee_count }}</h3>
+                    <p>No. of employee</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-users"></i>
+                </div>
+                <a href="{% url 'adminViewEmployee' %}" class="small-box-footer">More Info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-blue">
+                <div class="inner">
+                    <h3>{{ assignment_count }}</h3>
+                    <p>No. of Assignments</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-briefcase"></i>
+                </div>
+                <a href="{% url 'assignedEvent' %}" class="small-box-footer">More Info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-maroon">
+                <div class="inner">
+                    <h3>{{ report_count }}</h3>
+                    <p>No. of Reports</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-file-text"></i>
+                </div>
+                <a href="{% url 'report' %}" class="small-box-footer">More Info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+         <div class="col-lg-3 col-xs-6">
+            <!-- small box -->
+            <div class="small-box bg-purple">
+                <div class="inner">
+                    <h3>{{ department_count }}</h3>
+                    <p>No. of departments</p>
+                </div>
+                <div class="icon">
+                    <i class="fa fa-random"></i>
+                </div>
+                <a href="{% url 'department' %}" class="small-box-footer">More Info <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <h3>Graphical Analytics and Insights</h3>
+        </div>
+    </div>
+
+<div class="row">
+    <!-- Employee Assignment Overview Chart -->
+        <div class="col-xs-12 col-md-6">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h4 class="box-title"><b>Employee Assignment Overview</b></h4>
+                </div>
+                <div class="box-body">
+                    <canvas id="employeeAssignmentChart" style="height:400px"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Event Categories Overview Chart -->
+        <div class="col-xs-12 col-md-6">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <h4 class="box-title"><b>Event Categories Overview</b></h4>
+                </div>
+                <div class="box-body">
+                    <canvas id="categoriesChart" style="height:400px"></canvas>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+</section>
+{% endblock content %}
+
+{% block custom_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  $(function() {
+    // Event Categories Chart
+    var ctxCategories = document.getElementById('categoriesChart').getContext('2d');
+    var labelsCategories = [{% for category in event_categories %}'{{ category.category }}',{% endfor %}];
+    var dataCategories = [{% for category in event_categories %}{{ category.event_count }},{% endfor %}];
+
+    var categoriesChart = new Chart(ctxCategories, {
+        type: 'bar',
+        data: {
+            labels: labelsCategories,
+            datasets: [{
+                label: 'Number of Events',
+                data: dataCategories,
+                backgroundColor: 'rgba(60,141,188,0.9)',
+                borderColor: 'rgba(60,141,188,0.8)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: true
+        }
+    });
+
+    // Employee Assignment Chart
+    var ctxEmployees = document.getElementById('employeeAssignmentChart').getContext('2d');
+    var labelsEmployees = [{% for event in events %}'{{ event.title }}',{% endfor %}];
+    var dataEmployees = [{% for event in events %}{{ event.employee_count }},{% endfor %}];
+
+    var employeeAssignmentChart = new Chart(ctxEmployees, {
+        type: 'pie',
+        data: {
+            labels: labelsEmployees,
+            datasets: [{
+                label: 'Number of Employees Assigned',
+                data: dataEmployees,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.9)',
+                    'rgba(54, 162, 235, 0.9)',
+                    'rgba(255, 206, 86, 0.9)',
+                    'rgba(75, 192, 192, 0.9)',
+                    'rgba(153, 102, 255, 0.9)',
+                    'rgba(255, 159, 64, 0.9)',
+                    'rgba(255, 99, 132, 0.9)'
+                ],
+                hoverOffset: 4
+            }]
+        }, 
+        
+    });
+  });
+</script>
+{% endblock custom_js %}

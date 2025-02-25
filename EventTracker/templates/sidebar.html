@@ -1,0 +1,45 @@
+{% load static %}
+<aside class="main-sidebar">
+  <!-- sidebar: style can be found in sidebar.less -->
+  <section class="sidebar">
+    <!-- Sidebar user panel -->
+    <div class="user-panel">
+      <div class="pull-left image">
+        <img src="{% static 'images/userplaceholder.png' %}" class="img-circle" alt="User Image">
+      </div>
+      <div class="pull-left info">
+        <p>{{ request.user }}</p>
+        <a><i class="fa fa-circle text-success"></i> Online</a>
+      </div>
+    </div>
+    <!-- sidebar menu: : style can be found in sidebar.less -->
+    <ul class="sidebar-menu" data-widget="tree">
+      {% if request.user.user_type == '1' %}
+      <li class="header">HOME</li>
+      <li class=""><a href="{% url 'admin_dashboard' %}"><i class="fa fa-dashboard" title="dashboard"></i> <span>Dashboard</span></a></li>  
+      <li class="header">MANAGE DEPARTMENTS AND EMPLOYEES</li> 
+      <li class=""><a href="{% url 'department' %}"><span class="fa fa-random" title="department"></span> <span>Departments</span></a></li> 
+      <li class=""><a href="{% url 'skill' %}"><span class="fa fa-random" title="skills"></span> <span>Skills</span></a></li> 
+      <li class=""><a href="{% url 'adminViewEmployee'%}"><i class="fa fa-users" title="employees"></i> <span>Employees</span></a></li>  
+      <li class="header">MANAGE EVENTS</li>
+      <li class=""><a href="{% url 'createEventCategory' %}"><i class="fa fa-file-text" title="event category"></i> <span>Events Category</span></a></li>
+      <li class=""><a href="{% url 'viewEvents' %}"><span class="fa fa-pencil" title="Event Management"></span> <span>Events Management</span></a></li>
+      <li class=""><a href="{% url 'assignedEvent' %}"><i class="fa fa-tasks" title="Assigning Event"></i> <span>Assigned Events</span></a></li> 
+     <li class="header">MANAGE EMPLOYEE REPORTS</li>
+      <li class=""><a href="{% url 'report' %}"><i class="fa fa-file" title="Reports"></i> <span>Reports</span></a></li> 
+      <li class=""><a href="{% url 'logout' %}"><i class="fa fa-power-off" title="logout"></i> <span>Logout</span></a></li>  
+      {% endif %}
+      {% if request.user.user_type == '2'%}
+      <li class="header">REPORT</li>
+      <li class=""><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i> <span>my events</span></a></li>
+      <li class=""><a href="{% url 'listEvents' %}"><i class="fa fa-eye"></i> <span>See events</span></a></li>
+
+        
+      <li class="header">EXIT</li>
+      <li class=""><a href="{% url 'logout' %}"><i class="fa fa-power-off"></i> <span>Logout</span></a></li>
+      {%endif%}
+
+    </ul>
+  </section>
+  <!-- /.sidebar -->
+</aside>

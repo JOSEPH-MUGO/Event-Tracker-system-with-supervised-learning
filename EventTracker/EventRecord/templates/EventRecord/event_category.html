@@ -1,0 +1,215 @@
+{% extends "admin/root.html" %}
+{% load static %}
+{% block title %}Event Categories{% endblock title %}
+{% block content %}
+<section class="content">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box">
+        <div class="box-header with-border">
+          <a href="#addnew" data-toggle="modal" class="btn btn-success btn-sm btn-flat">
+            <i class="fa fa-plus"></i> Add New Event Category
+          </a>
+        </div>
+        
+        <div class="box-body">
+          <div class="table-responsive">
+          {% if category %}
+          <table id="example1" class="table table-bordered table-hover table-striped">
+            <thead style="background-color: #222d32; color: white">
+              <th>Event Category</th>
+              <th>Created at</th>
+              <th>Action</th>
+            </thead>
+            <tbody>
+              {% for category in category %}
+              <tr>
+                <td>{{ category.event_type }}</td>
+                <td>{{ category.created_at }}</td>
+                <td>
+                  <button class="btn btn-primary btn-sm edit btn-flat" data-id="{{ category.id }}">
+                    <i class="fa fa-edit"></i> Edit
+                  </button>
+                  <button class="btn btn-danger btn-sm delete btn-flat" data-id="{{ category.id }}">
+                    <i class="fa fa-trash"></i> Delete
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p>No event categories available</p>
+          {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}
+
+{% block modal %}
+<!-- Add New Event Category Modal -->
+<div class="modal fade" id="addnew">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title"><b>Add New Event Category</b></h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" method="POST" action="{% url 'createEventCategory' %}">
+          {% csrf_token %}
+          <div class="modal-body">
+            {% for field in form %}
+            <div class="form-group has-feedback">
+              <span class="text-danger">{{ field.errors }}</span>
+              {{ field.label_tag }} {{ field }}
+            </div>
+            {% endfor %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger btn-flat pull-left" data-dismiss="modal">
+              <i class="fa fa-close"></i> Close
+            </button>
+            <button type="submit" class="btn btn-success btn-flat" name="add">
+              <i class="fa fa-save"></i> Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Event Modal -->
+<div class="modal fade" id="edit">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title"><b>Edit Event Category</b></h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" method="POST" action="{% url 'updateCategory' %}">
+          {% csrf_token %}
+          <input type="hidden" class="id" name="id" value="" />
+          <div class="form-group">
+            <label for="event_type" class="col-sm-3 control-label">Category</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="event_type" name="event_type" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger btn-flat pull-left" data-dismiss="modal">
+              <i class="fa fa-close"></i> Close
+            </button>
+            <button type="submit" class="btn btn-success btn-flat" name="edit">
+              <i class="fa fa-check-square-o"></i> Update
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock modal %}
+
+{% block custom_js %}
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    $(document).on('click', '.edit', function (e) {
+      e.preventDefault();
+      
+      $('#edit').modal('show');
+      var id = $(this).data('id');
+      getRow(id);
+    });
+
+    $(document).on('click', '.delete', function (e) {
+      e.preventDefault();
+      var id = $(this).data('id');
+      var eventType = $(this).closest('tr').find('td:first').text().trim();
+      confirmDelete(id, eventType);
+    });
+  });
+
+  function getRow(id) {
+    $.ajax({
+      type: 'GET',
+      url: '{% url "getCategory" %}',
+      data: { id: id },
+      dataType: 'json',
+      success: function (response) {
+        if (response.code === 200) {
+          $('.id').val(response.id);
+          $('#edit #event_type').val(response.event_type);
+          $('.event_type').html(response.event_type);
+        } else {
+          alert('Event not found');
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("AJAX Error: ", status, error);
+      }
+    });
+  }
+
+  function confirmDelete(id, eventType) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `You are about to delete ${eventType} event category. This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "deleteCategory" %}';
+
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrfmiddlewaretoken';
+        csrfToken.value = '{{ csrf_token }}'; // Ensure CSRF token is correctly included
+
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'id';
+        idInput.value = id;
+
+        form.appendChild(csrfToken);
+        form.appendChild(idInput);
+
+        document.body.appendChild(form);
+        form.submit();
+      }
+    });
+  }
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                title: "{{ message.tags|capfirst }}",
+                text: "{{ message }}",
+                icon: "{{ message.tags }}",
+                confirmButtonText: 'OK'
+            });
+        {% endfor %}
+    {% endif %}
+});
+</script>
+{% endblock custom_js %}

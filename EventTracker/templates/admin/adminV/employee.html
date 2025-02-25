@@ -1,0 +1,291 @@
+{% extends "admin/root.html" %}
+{% load static %}
+{% block content %}
+<section class="content">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box">
+        <div class="box-header with-border">
+          <a href="#addnew" data-toggle="modal" class="btn btn-success btn-sm btn-flat">
+            <i class="fa fa-plus"></i> Add New
+          </a>
+        </div>
+        <div class="box-body">
+          <div class="table-responsive">
+          <table id="example1" class="table table-bordered table-hover table-striped display" >
+            <thead style="background-color: #222d32; color: white">
+              <tr>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Department</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for employee in employees %}
+              <tr>
+                <td>{{ employee.admin.first_name }}</td>
+                <td>{{ employee.admin.last_name }}</td>
+                <td>{{ employee.admin.email }}</td>
+                <td>{{ employee.phone }}</td>
+                <td>{{ employee.department }}</td>
+                <td>
+                  <a href="{% url 'getAssigned' employee_id=employee.id %}" class='btn btn-info view btn-sm btn-flat'>
+                    <i class='fa fa-eye'></i> View
+                  </a>
+                  <button class="btn btn-primary btn-sm edit btn-flat" data-id="{{ employee.id }}">
+                    <i class="fa fa-edit"></i> Edit
+                  </button>
+                  <button class="btn btn-danger btn-sm delete btn-flat" data-id="{{ employee.id }}">
+                    <i class="fa fa-trash"></i> Delete
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+           </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}
+
+{% block modal %}
+<div class="modal fade" id="addnew">
+  <div class="modal-dialog">
+      <div class="modal-content" style="width: 430px;">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title"><b>Add New Employee</b></h4>
+          </div>
+          <div class="modal-body">
+            <form class="form-horizontal" method="POST" action="{% url 'adminViewEmployee' %}">
+              {% csrf_token %}
+
+             
+              <div class="modal-body">
+                  {% for field in form1  %}
+                  <div class="form-group has-feedback" style="width: 400px; align-item:center;">
+                      <span class="text-danger">{{field.errors}}</span>
+                      {{field.label_tag}}
+                      {{field}}
+                  </div>
+                  {% endfor %}
+
+                  {% for field in form2  %}
+                  <div class="form-group has-feedback" style="width: 400px;">
+                      <span class="text-danger">{{field.errors}}</span>
+                      {{field.label_tag}}
+                      {{field}}
+                  </div>
+                  {% endfor %}
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+            <button type="submit" class="btn btn-success btn-flat" name="add"><i class="fa fa-save"></i> Save</button>
+          </div></form></div></div></div></div>
+
+<!-- Edit -->
+<div class="modal fade" id="edit">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title"><b>Edit Employee</b></h4>
+          </div>
+          <div class="modal-body">
+            <form class="form-horizontal" method="POST" action="{% url 'updateEmployee' %}">
+              {% csrf_token %}
+              <input type="hidden" class="id" name="id">
+              <div class="form-group">
+                  <label for="edit_firstname" class="col-sm-3 control-label">Firstname</label>
+
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="edit_firstname" name="first_name">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="edit_lastname" class="col-sm-3 control-label">Lastname</label>
+
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="edit_lastname" name="last_name">
+                  </div>
+              </div>
+              <div class="form-group">
+                <label for="edit_email" class="col-sm-3 control-label">Email</label>
+
+                <div class="col-sm-9">
+                  <input type="email" class="form-control" id="edit_email" name="email">
+                </div>
+            </div>
+            <div class="form-group">
+              <label for="edit_phone" class="col-sm-3 control-label">Phone</label>
+
+              <div class="col-sm-9">
+                <input type="text" class="form-control" id="edit_phone" name="phone">
+              </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit_skills" class="col-sm-3 control-label">Skills</label>
+            <div class="col-sm-9">
+              <select class="form-control select2" id="edit_skills" name="skills" multiple="multiple">
+              {% for skill in skills %}
+              <option value="{{ skill.id }}">{{ skill.name }}</option>
+              {% endfor %}
+              </select>
+            </div>
+          </div>
+        
+          <div class="form-group">
+            <label for="event_type" class="col-sm-3 control-label">Department</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="department" name="department">
+                {%for department in departments%}
+                <option value="{{ department.id }}">{{ department.name }}</option>
+                {%endfor%}
+              </select>
+            </div>
+          </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+            <button type="submit" class="btn btn-success btn-flat" name="edit"><i class="fa fa-check-square-o"></i> Update</button>
+            </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+{% endblock modal %}
+
+
+{% block custom_js %}
+<script>
+   $(function() {
+ 
+      $(document).on('click', '.edit', function(e) {
+          e.preventDefault();
+          $('#edit').modal('show');
+          var id = $(this).data('id');
+          getRow(id);
+      });
+
+      $(document).on('click', '.delete', function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        var employee = $(this).closest('tr').find('td:first').text().trim();
+        confirmDelete(id, employee);
+    });
+      $(document).on('click', '.view-assignments', function(e) {
+        e.preventDefault();
+        $('#view-assignments').modal('show');
+        var id = $(this).data('id');
+        loadAssignments(id);
+    });
+      
+
+
+  });
+  function getRow(id) {
+    $.ajax({
+        type: 'GET',
+        url: '{% url "getEmployee" %}',
+        data: { id: id },
+        dataType: 'json',
+        success: function(response) {
+            console.log(response);
+            console.log('Skills received:', response.skills);
+            if (response.code === 200) {
+                $('.id').val(response.id);
+                $('#edit_firstname').val(response.first_name);
+                $('#edit_lastname').val(response.last_name);
+                $('#edit_email').val(response.email);
+                $('#edit_phone').val(response.phone);
+                $('#department').val(response.department.id);
+                $('.fullname').html(response.first_name + ' ' + response.last_name);
+
+                // Convert selected skill IDs to strings
+                let selectedSkills = response.skills.map(skill => skill.id.toString());
+
+                // Destroy the existing select2 instance, if any
+                if ($('#edit_skills').hasClass("select2-hidden-accessible")) {
+                    $('#edit_skills').select2('destroy');
+                }
+                
+                // Set the value of the select element and trigger change event
+                $('#edit_skills').val(selectedSkills);
+                console.log("After setting, selected skills: ", $('#edit_skills').val());
+                
+                // Reinitialize select2 on the element
+                $('#edit_skills').select2({
+                    placeholder: 'Select skills',
+                    allowClear: true
+                });
+            } else {
+                console.log('Employee not found.');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.log('Error: ' + error);
+        }
+    });
+}
+
+  function confirmDelete(id, employee) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `You are about to delete employee ${employee}. This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+      // Create a delete form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "deleteEmployee" %}';
+
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrfmiddlewaretoken';
+        csrfToken.value = '{{ csrf_token }}';
+
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'id';
+        idInput.value = id;
+
+        form.appendChild(csrfToken);
+        form.appendChild(idInput);
+
+        document.body.appendChild(form);
+        form.submit();
+      }
+    });
+  }
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                title: "{{ message.tags|capfirst }}",
+                text: "{{ message }}",
+                icon: "{{ message.tags }}",
+                confirmButtonText: 'OK'
+            });
+        {% endfor %}
+    {% endif %}
+});
+</script>
+{% endblock custom_js %}

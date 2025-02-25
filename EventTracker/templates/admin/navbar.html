@@ -1,0 +1,99 @@
+
+{% load static %}
+<header class="main-header">
+  <a href="#" class="logo">
+    <span class="logo-mini">E T S</span>
+    <span class="logo-lg"><b>EVENT TRACKER</b></span>
+  </a>
+  <nav class="navbar navbar-static-top">
+    <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+      <span class="sr-only">Toggle navigation</span>
+    </a>
+    <div class="navbar-custom-menu">
+      <ul class="nav navbar-nav">
+       <!-- Notification System Start -->
+        {% if request.user.user_type == '1' %}
+        <li class="nav-item dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    <!-- Use the context variable unread_notifications_count here -->
+    <i class="fa fa-bell" data-count="{{ unread_notifications_count }}"></i>
+    {% if unread_notifications_count > 0 %}
+      <span class="label label-danger">{{ unread_notifications_count }}</span>
+    {% endif %}
+  </a>
+  <ul class="dropdown-menu" style="width: 300px !important;">
+    {% if unread_notifications_count > 0 %}
+      <li class="header text-center">
+        You have {{ unread_notifications_count }} unread notifications
+      </li>
+      <li>
+        <ul class="menu">
+          {% for note in unread_notifications %}
+            <li><a href="#">{{ note.message }}</a></li>
+          {% endfor %}
+        </ul>
+      </li>
+      <li class="footer text-center">
+        <a href="{% url 'notifications' %}">View all</a>
+      </li>
+    {% else %}
+      <li class="text-center"><em>No new notifications</em></li>
+    {% endif %}
+  </ul>
+</li>
+        {% endif %}
+
+        <!-- Notification System End -->
+        <li class="dropdown user user-menu">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <img src="{% if request.user.profile_image %}{{ request.user.profile_image.url }}{% else %}{% static 'images/userplaceholder.png' %}{% endif %}" class="user-image" alt="User Image">
+              <span class="hidden-xs">{{ request.user }}</span>
+          </a>
+          <ul class="dropdown-menu">
+            <li class="user-header">
+              <img src="{% if request.user.profile_image %}{{ request.user.profile_image.url }}{% else %}{% static 'images/userplaceholder.png' %}{% endif %}" class="img-circle" alt="User Image">
+              <p>
+                {{ request.user }}
+                <small>Member since: {{ request.user.created_at }}</small>
+              </p>
+            </li>
+            <li class="user-footer">
+              <div class="pull-left">
+                <a href="#" class="btn btn-primary btn-flat" id="update">Update</a>
+              </div>
+              <div class="pull-right">
+                <a href="{% url 'logout' %}" class="btn btn-danger btn-flat">Logout</a>
+              </div>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+{% block css_style %}
+<style>
+    .fa-solid {
+        font-size: 26px;
+    }
+
+    .fa-solid[data-count]:after {
+        position: absolute;
+        right: 0%;
+        top: 1%;
+        content: attr(data-count);
+        font-size: 36%;
+        padding: .6em;
+        border-radius: 999px;
+        line-height: .75em;
+        color: white;
+        background: rgba(255, 0, 0, .85);
+        text-align: center;
+        min-width: 2em;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% include "admin/bio.html" %}

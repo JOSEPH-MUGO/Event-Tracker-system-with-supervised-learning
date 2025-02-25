@@ -1,0 +1,91 @@
+{% load static %}
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+  <title>Event Tracker System </title>
+  <link rel="icon" href="{% static 'images/icon.jpg' %}">
+  
+  <!-- Bootstrap 3.3.7 -->
+  <link rel="stylesheet" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
+  <!-- iCheck for checkboxes and radio inputs -->
+  <link rel="stylesheet" href="{% static 'account/plugins/iCheck/all.css' %}">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'bower_components/font-awesome/css/font-awesome.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'account/dist/css/AdminLTE.min.css' %}">
+  <!--
+  <link rel="stylesheet" href="{% static 'account/css/sb-admin-2.min.css' %}">
+  -->
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static 'bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+  <!-- select2 -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <!-- Bootstrap time Picker -->
+  <link rel="stylesheet" href="{% static 'account/plugins/timepicker/bootstrap-timepicker.min.css' %}">
+  <!-- AdminLTE Skins -->
+  <link rel="stylesheet" href="{% static 'account/dist/css/skins/_all-skins.min.css' %}">
+  <link rel="stylesheet" href="{% static 'account/toastr/toastr.min.css' %}">
+  <!-- Google Font -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
+  <style>
+    .bold {
+      font-weight: bold;
+    }
+
+    #candidate_list {
+      margin-top: 20px;
+    }
+
+    #candidate_list ul {
+      list-style-type: none;
+    }
+
+    #candidate_list ul li {
+      margin: 0 30px 30px 0;
+      vertical-align: top;
+    }
+
+    .clist {
+      margin-left: 20px;
+    }
+
+    .cname {
+      font-size: 25px;
+    }
+
+    #category {
+      width: 250px;
+      margin: auto;
+      height: 30px;
+    }
+
+    #id_event {
+      width: 370px;
+    }
+
+    #department-select {
+      width: 370px;
+    }
+
+    #employee-select {
+      width: 370px;
+    }
+
+    #deparment_id {
+      width: 400px;
+    }
+    #skill_id {
+      width: 400px;
+      placeholder: Search and select skills;
+    }
+    #required_skills {
+      width: 250px;
+      
+    }
+  </style>
+</head>

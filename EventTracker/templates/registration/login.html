@@ -1,0 +1,67 @@
+{% extends "base1.html" %} 
+{% load static %}
+{% block title %}Login{% endblock %} 
+{% block content %}
+
+<div class="login-box">
+    <div class="login-logo">
+        <b>Event Tracker System</b>
+    </div>
+    <div class="login-box-body">
+        <p class="login-box-msg">Sign in to your session</p>
+         {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+          <li{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %} id="message_{{ forloop.counter }}">
+            {{ message }}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <form action="{% url 'login' %}" method="POST">
+            {% csrf_token %}
+                  
+            <div class="form-group has-feedback">
+                <input type="text" class="form-control" name="email" placeholder="Email" required>
+                <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+            </div>
+            <div class="form-group has-feedback">
+                <input type="password" class="form-control" name="password" placeholder="Password" required>
+                
+                <i class="glyphicon glyphicon-eye-close field-icon form-control-feedback" id="togglePassword"></i>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="remember_me"> Remember Me
+                </label>
+            </div>
+            <p><a href="{% url 'password_reset'%}" style={"text-decoration: none"}>Forget password?</a></p> 
+            <div class="row">
+                <div class="col-xs-4 col-xs-offset-4">
+                    <button type="submit" class="btn btn-success btn-block btn-flat" name="login"><i
+                            class="fa fa-sign-in"></i> Log In</button>
+                </div>
+                
+            </div>
+           
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock content%}
+{%block custom_js%}
+<script>
+  $(document).ready(function() {
+    $("#togglePassword").click(function() {
+      $(this).toggleClass("glyphicon-eye-open"); // Toggle to eye-open icon
+      var type = $("#password").attr("type") === "password" ? "text" : "password";
+      $("#password").attr("type", type);
+    });
+  });
+</script>
+{%endblock custom_js%}
+
+

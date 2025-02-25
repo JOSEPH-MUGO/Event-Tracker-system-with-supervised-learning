@@ -1,0 +1,50 @@
+{% extends "admin/root.html" %}
+{% load static %}
+{% block title %}list event{% endblock title %}
+{% block content %}
+<section class="content">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box">
+        
+
+        <div class="box-body">
+          <div class="table-responsive">
+          {% if events %}
+          <table id="example1" class="table table-bordered table-hover table-striped">
+            <thead style="background-color: #222D32; color:white;">
+              <th>Category</th>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Venue</th>
+              <th>Location</th>
+              <th>Start date</th>
+              <th>End Date</th>
+              <th>Status</th>
+              
+            </thead>
+            <tbody>
+              {% for event in events %}
+              <tr>
+                <td>{{ event.event_type }}</td>
+                <td>{{ event.title }}</td>
+                <td>{{ event.description }}</td>
+                <td>{{ event.venue }}</td>
+                <td>{{ event.location }}</td>
+                <td>{{ event.start_date }}</td>
+                <td>{{ event.end_date }}</td>
+                <td>{{ event.get_status_display}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p>No active event available </p>
+          {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

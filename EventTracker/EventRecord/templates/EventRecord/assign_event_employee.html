@@ -1,0 +1,462 @@
+{% extends "admin/root.html" %} {% load static %} {% block title %}Event assignments{% endblock title %} {% block content %}
+<section class="content">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box">
+        <div class="box-header with-border">
+          <a
+            href="#addnew"
+            data-toggle="modal"
+            class="btn btn-success btn-sm btn-flat"
+            ><i class="fa fa-plus"></i> Assign employee an event</a
+          >
+        </div>
+         
+        <div class="box-body">
+          <div class="table-responsive">
+          {% if assigns %}
+          <table
+            id="example1"
+            class="table table-bordered table-hover table-striped"
+          >
+            <thead style="background-color: #222d32; color: white">
+              <th>Event</th>
+              <th>Department</th>
+              <th>Employee</th>
+              <th>Assigned Date</th>
+              <th>Time Assigned</th>
+              <th>Message</th>
+              <th>Last Updated</th>
+
+              <th>Action</th>
+            </thead>
+            <tbody>
+              {% for assigned in assigns %}
+              <tr>
+                <td>{{ assigned.event }}</td>
+                <td>{{ assigned.department }}</td>
+                <td>{{ assigned.employee }}</td>
+                <td>{{ assigned.assign_date }}</td>
+                <td>{{ assigned.time }}</td>
+                <td>{{ assigned.message }}</td>
+                <td>{{ assigned.updated_at }}</td>
+
+
+                <td>
+                  <button
+                    class="btn btn-primary btn-sm edit btn-flat"
+                    data-id="{{ assigned.id }}"
+                  >
+                    <i class="fa fa-edit"></i> Edit
+                  </button>
+                  <button
+                    class="btn btn-danger btn-sm delete btn-flat"
+                    data-id="{{ assigned.id }}">
+                    <i class="fa fa-trash"></i> Delete
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p>No assignment available</p>
+          {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}
+{% block modal %}
+<!--Assign event to employee-->
+<div class="modal fade" id="addnew">
+  <div class="modal-dialog modal-dialog-custom" style="max-width: 400px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title"><b>Add new assignment</b></h4>
+      </div>
+      <div class="modal-body" style="max-height: 520px; overflow: auto;">
+        <form class="form-horizontal" method="POST" action="{% url 'assignedEvent' %}">
+          {% csrf_token %}
+          
+          {% for field in form %}
+            {% if field.name == 'assign_date' %}
+              <div class="form-group">
+                <div class="col-sm-6">
+                  <label class="control-label">{{ field.label }}</label>
+                  {{ field }}
+                </div>
+            {% elif field.name == 'time' %}
+                <div class="col-sm-6">
+                  <label class="control-label">{{ field.label }}</label>
+                  {{ field }}
+                </div>
+              </div>
+            {% else %}
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <label class="control-label">{{ field.label }}</label>
+                  {{ field }}
+                  <span class="text-danger">{{ field.errors }}</span>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger btn-flat pull-left" data-dismiss="modal">
+              <i class="fa fa-close"></i> Close
+            </button>
+            <button type="submit" class="btn btn-success btn-flat" name="add">
+              <i class="fa fa-save"></i> Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Edit Assignment Modal -->
+<div class="modal fade" id="edit">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title"><b>Edit employee event assigned</b></h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" method="POST" action="{% url 'updateAssigned' %}">
+          {% csrf_token %}
+          <input type="hidden" class="id" name="id" value="" />
+          <div class="form-group">
+            <label for="event" class="col-sm-3 control-label">Event</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="event" name="event">
+                {% for event in form.event.field.queryset %}
+                
+                <option value="{{ event.id }}">{{ event.title }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+            <div class="form-group">
+            <label for="department" class="col-sm-3 control-label">Department</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="department" name="department">
+                {% for department in form.department.field.queryset %}
+               
+                <option value="{{ department.id }}">{{ department.name }} </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="employee" class="col-sm-3 control-label">Employee</label>
+            <div class="col-sm-9">
+              <select class="form-control" id="employee" name="employee">
+               
+               {% for employee in form.employee.field.queryset %}
+                <option value="{{ employee.id }}">{{ employee.admin.first_name }} {{ employee.admin.last_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="assign_date" class="col-sm-3 control-label">Assign Date</label>
+            <div class="col-sm-9">
+              <input type="date" class="form-control" id="assign_date" name="assign_date" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="time" class="col-sm-3 control-label">Time</label>
+            <div class="col-sm-9">
+              <input type="time" class="form-control" id="time" name="time" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="message" class="col-sm-3 control-label">Message</label>
+            <div class="col-sm-9">
+              <textarea class="form-control" id="message" name="message" ></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger btn-flat pull-left" data-dismiss="modal">
+              <i class="fa fa-close"></i> Close
+            </button>
+            <button type="submit" class="btn btn-success btn-flat" name="edit">
+              <i class="fa fa-check-square-o"></i> Update
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock modal %}
+{% block custom_js %}
+<script>
+  // Function to get CSRF token from cookies
+  function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      var cookies = document.cookie.split(';');
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = jQuery.trim(cookies[i]);
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  var csrftoken = getCookie('csrftoken');
+
+  // Setup CSRF token for AJAX
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+        // Only send the token to relative URLs i.e. locally.
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+      }
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Populate employees based on selected department
+    $('#department-select').change(function() {
+      var departmentId = $(this).val();
+      if (departmentId) {
+        $.ajax({
+          url: '{% url "getEmployeeByDepartment" %}',
+          type: 'GET',
+          data: {'department_id': departmentId},
+          success: function(data) {
+            $('#employee-select').empty(); // Clear previous options
+            $('#employee-select').append('<option value="">Select an employee</option>');
+            $.each(data, function(index, employee) {
+              $('#employee-select').append('<option value="' + employee.id + '">' + employee.admin__first_name + ' ' + employee.admin__last_name + ' (' + employee.admin__email + ')</option>');
+            });
+          },
+          error: function(xhr, status, error) {
+            console.error('AJAX Error: ' + status + error);
+          }
+        });
+      } else {
+        $('#employee-select').html('<option value="">Select an employee</option>');
+      }
+    });
+
+    // Populate employees based on selected department in the edit form
+    $('#department').change(function() {
+      var departmentId = $(this).val();
+      $.ajax({
+        url: '{% url "getEmployeeByDepartment" %}',
+        data: { 'department_id': departmentId },
+        dataType: 'json',
+        success: function(data) {
+          console.log('Employee data:', data); // Log the received data
+          $('#employee').empty();
+          $('#employee').append('<option value="">Select an employee</option>');
+          $.each(data, function(index, item) {
+            $('#employee').append('<option value="' + item.id + '">' + item.admin__first_name + ' ' + item.admin__last_name + ' (' + item.admin__email + ')</option>');
+          });
+        },
+        error: function(xhr, status, error) {
+          console.error("AJAX Error: ", status, error);
+        }
+      });
+    });
+
+    // Edit button click event handler
+    $(document).on('click', '.edit', function(e) {
+      e.preventDefault();
+      $('#edit').modal('show');
+      var id = $(this).data('id');
+      getRow(id);
+    });
+
+    // Delete button click event handler
+    $(document).on('click', '.delete', function (e) {
+      e.preventDefault();
+      var id = $(this).data('id');
+      var assigned = $(this).closest('tr').find('td:first').text().trim();
+      confirmDelete(id, assigned);
+    });
+  });
+
+  // Function to fetch data for editing
+  function getRow(id) {
+    $.ajax({
+      type: 'GET',
+      url: '{% url "getAssigned" %}',
+      data: { id: id },
+      dataType: 'json',
+      success: function(response) {
+        console.log('Assignment response:', response); // Log the response
+        if (response.code === 200) {
+          $('.id').val(response.id);
+          $('#edit #event').val(response.event.id);
+          $('#edit #department').val(response.department.id);
+          $('#edit #assign_date').val(response.assign_date);
+          $('#edit #time').val(response.time);
+          $('#edit #message').val(response.message);
+          $('.event').html(response.event.title);
+          // Populate employee dropdown
+          populateEmployeeDropdown(response.department.id, response.employee.id);
+        } else {
+          alert('Assignment not found');
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error("AJAX Error: ", status, error);
+      }
+    });
+  }
+
+  // Function to populate employee dropdown
+  function populateEmployeeDropdown(departmentId, selectedEmployeeId) {
+    $.ajax({
+      type: 'GET',
+      url: '{% url "getEmployeeByDepartment" %}',
+      data: { department_id: departmentId },
+      dataType: 'json',
+      success: function(data) {
+        $('#employee').empty();
+        $('#employee').append('<option value="">Select an employee</option>');
+        $.each(data, function(index, item) {
+          $('#employee').append('<option value="' + item.id + '">' + item.admin__first_name + ' ' + item.admin__last_name + '</option>');
+        });
+
+        // Set the selected employee if available
+        if (selectedEmployeeId) {
+          $('#employee').val(selectedEmployeeId);
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error("AJAX Error: ", status, error);
+      }
+    });
+  }
+
+  // Function to confirm delete action
+function confirmDelete(id, assigned) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: `You are about to delete ${assigned} assignment. This action cannot be undone.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Create a form and submit it
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '{% url "deleteAssigned" %}';
+
+      const csrfToken = document.createElement('input');
+      csrfToken.type = 'hidden';
+      csrfToken.name = 'csrfmiddlewaretoken';
+      csrfToken.value = '{{ csrf_token }}'; 
+
+      const idInput = document.createElement('input');
+      idInput.type = 'hidden';
+      idInput.name = 'id';
+      idInput.value = id;
+
+      form.appendChild(csrfToken);
+      form.appendChild(idInput);
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
+}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  {% if messages %}
+    {% for message in messages %}
+      Swal.fire({
+        title: "{{ message.tags|capfirst }}",
+        text: "{{ message }}",
+        icon: "{{ message.tags }}",
+        confirmButtonText: 'OK'
+      });
+    {% endfor %}
+  {% endif %}
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var $eventSelect = $('#event-select');
+  var $departmentSelect = $('#department-select');
+  var $employeeSelect = $('#employee-select');
+
+  function updateRecommendedEmployees() {
+    var eventId = $eventSelect.val();
+    var departmentId = $departmentSelect.val();
+
+    // Only do AJAX if both fields are selected
+    if (eventId && departmentId) {
+      $.ajax({
+        url: '{% url "getRecommendedEmployees" %}',
+        type: 'GET',
+        data: {
+          'event_id': eventId,
+          'department_id': departmentId
+        },
+        dataType: 'json',
+        success: function(data) {
+          // Clear employee dropdown
+          $employeeSelect.empty();
+          if (data.length > 0) {
+            $.each(data, function(index, emp) {
+              $employeeSelect.append(
+                '<option value="' + emp.id + '">' +
+                  emp.first_name + ' ' + emp.last_name + ' (' + emp.email + ')' +
+                '</option>'
+              );
+            });
+          } else {
+            // If no recommended employees
+            $employeeSelect.append('<option value="">No recommended employees found</option>');
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error("AJAX Error: ", status, error);
+        }
+      });
+    } else {
+      // If not both selected, reset or show default
+      $employeeSelect.empty().append('<option value="">Select an employee</option>');
+    }
+  }
+
+  // Trigger the update on change
+  $eventSelect.change(updateRecommendedEmployees);
+  $departmentSelect.change(updateRecommendedEmployees);
+
+  // Optionally, call once on page load if event or department is preselected
+  updateRecommendedEmployees();
+});
+</script>
+
+{% endblock custom_js %}

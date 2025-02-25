@@ -1,0 +1,8 @@
+<h1>Evaluate Report</h1>
+<p><strong>ON:</strong> {{ report.assignment.event }}</p>
+<form method="post">
+    {% csrf_token %}
+    <label for="score">Enter Score (0 to 100):</label>
+    <input type="number" name="score" min="0" max="100" required>
+    <button type="submit">Submit Evaluation</button>
+</form>

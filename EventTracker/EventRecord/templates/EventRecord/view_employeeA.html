@@ -1,0 +1,70 @@
+{% extends "admin/root.html" %}
+{% load static %}
+{% block title %}Event Assignments{% endblock title %}
+{% block content %}
+<section class="content">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title">Assignments for Employee:<b>{{ employee.admin.first_name }} {{ employee.admin.last_name }} from the Department of ({{ employee.department }})</b></h3>
+        </div>
+        {%if assignments %}
+        <div class="box-body">
+          <div class="table-responsive">
+          <b>Assigned Events</b>
+          <table id="example1" class="table table-bordered table-hover table-striped">
+            <thead style="background-color: #222d32; color: white">
+              <th>Event</th>
+              <th>Category</th>
+              <th>Description</th>
+              <th>Venue</th>
+              <th>Location</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Status</th>
+              <th>Date assigned</th>
+              <th>Time assigned</th>
+              
+              <th>Action</th>
+            </thead>
+            <tbody>
+              {% for assignment in assignments %}
+              <tr>
+                <td>{{ assignment.event.title }}</td>
+                <td>{{ assignment.event.event_type }}</td>
+                <td>{{ assignment.event.description }}</td>
+                <td>{{ assignment.event.venue }}</td>
+                <td>{{ assignment.event.location }}</td>
+                <td>{{ assignment.event.start_date }}</td>
+                <td>{{ assignment.event.end_date }}</td>
+                <td>{{ assignment.event.get_status_display }}</td>
+                <td>{{ assignment.assign_date }}</td>
+                <td>{{ assignment.time }}</td>             
+                <td>
+                  {% if assignment.report %}
+                    <a href="{% url 'downloadReport' report_id=assignment.report.id %}" class="btn btn-success btn-sm download btn-flat">
+                      <i class="fa fa-download"></i> Download Report
+                    </a>
+                  {% else %}
+                    No Report Available
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p>No assignment available for this employee</p>
+          {% endif %}
+          </div>
+          <button type="button" class="btn btn-default btn-flat pull-left" onclick="window.history.back();">
+          <i class="fa fa-back"></i> Back
+        </button>
+        </div>
+         
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}
