@@ -1,12 +1,28 @@
-# Hey, WELCOME
-# EventTracker
 
-EventTracker is a Django-based application designed to manage events, assignments, and reporting within an organization. This system escapulates the essence of what it does through streamlines event management, events assignment,enhances transparency, accountability, and provides valuable insights through comprehensive reporting and analytics.
+# EventTracker and Reporting System with Supervised Learning model
+
+EventTracker is a Django-based application designed to manage events, employee assignments, and reporting within an organization. This system escapulates the essence of what it does through integrating a supervised machine learning model to recommend employees for events based on their skills and performance and standardize reporting to enhances transparency, accountability, and provides valuable insights through comprehensive reporting and real time analytics.In addition, the system incorporate Celery with RabbitMQ for asynchronous email notifications, ensuring that account credentials and assignment details are sent reliably even under intermittent connectivity.
+
+## Table of Contents
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Installation and Setup](#installation-and-setup)
+- [Database Migrations](#database-migrations)
+- [Running the Django Server](#running-the-django-server)
+- [Celery & RabbitMQ Integration](#celery--rabbitmq-integration)
+- [ML Model Training & Integration](#ml-model-training--integration)
+- [Email Sending](#email-sending)
+- [Usage Flow](#usage-flow)
+- [License](#license)
 
 ## Features
 
-- **User Authentication:** Secure login system for employees.
+- **User Authentication:** Secure login system.
 - **Event Assignment Management:** Create, assign, and manage events.
+- - **ML-Based Recommendations:**  A machine learning model recommends employees for an event based on their skill match and performance.
+- **Asynchronous Email Notifications:**  
+  Uses Celery with RabbitMQ to send HTML-formatted emails (e.g., account credentials) asynchronously.
 - **Event Reporting Interface:** Intuitive interface for reporting activities.
 - **Multimedia Support:** Employee writting reports can Upload any relevant file partaining the event. 
 - **Report Submission:** Through the employee interface the can write and submit their event reports Online.
@@ -20,6 +36,151 @@ EventTracker is a Django-based application designed to manage events, assignment
 - **Analytics and Insights:** System offer a graphical interface for various domains for analytics.
 - **Mobile Compatibility:** The system is Mobile responsive making accessible on mobile devices.
 
+## Tech Stack
+
+- **Backend:** Python 3.11, Django 5.1.4  
+- **Database:** MySQL  
+- **Asynchronous Tasks:** Celery, RabbitMQ  
+- **Machine Learning:** scikit-learn, imbalanced-learn (SMOTE) and GradientBoosting Classier 
+- **Email Rendering:** Django templating for emails
+- 
+  ## Project Structure
+  EventTracker/ ├── account/ │ ├── models.py │ ├── tasks.py # Celery tasks (e.g., send_credentials_email) │ ├── signals.py # Post-save signals to trigger email tasks │ ├── apps.py # App configuration for auto-discovering signals/tasks │ └── ... ├── employee/ │ ├── models.py # Employee, Department, Skills models │ ├── utils.py # ML recommendation integration │ ├── tasks.py # (Optional) Additional tasks │ └── ... ├── EventRecord/ │ ├── models.py # Event, Assignment, etc. │ └── ... ├── administrator/ │ └── views.py # Admin-related logic ├── templates/ │ ├── account/ │ │ └── password_email.html # HTML email template for credentials │ ├── EventRecord/ │ │ └── assign_event_employee.html # Assignment form modal template │ └── ... ├── ml_models/ # Directory for storing model and preprocessor files │ ├── optimized_recommender.pkl │ └── feature_preprocessor.pkl ├── trainmodel.py # Synthetic data generation script ├── feature_engineering.py # Feature engineering script ├── train_model.py # Model training script ├── celery.py # Celery application configuration ├── manage.py ├── requirements.txt # Python dependencies └── EventTracker/ ├── settings.py # Django settings ├── urls.py ├── wsgi.py └── init.py
+
+## Installation
+
+### Step- by- Step
+
+1. **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/JOSEPH-MUGO/
+    cd EventTracker
+    ```
+
+3. **Create and activate a virtual environment:**
+
+    ```bash
+    python3 -m venv venv
+    Windows: .event\Scripts\activate
+    ```
+   
+
+4. **Install dependencies:**
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+5. **Configure the database settings:**
+   Update the `DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'EventTracker',
+        'USER': 'root',
+        'PASSWORD': 'YourPassword',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}`
+ 
+6. **Configure Email and Celery Settings:**
+   ```bash
+from decouple import config
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+   ```
+7.  **Create `.env` file in the project directory:**
+```bash
+EMAIL_HOST_USER=your_email@example.com
+EMAIL_HOST_PASSWORD=your_email_password
+CELERY_BROKER_URL=amqp://guest:guest@localhost//
+CELERY_RESULT_BACKEND=rpc://
+```
+ **Database Migration**
+    ```bash
+    python manage.py makemigrations
+    python manage.py migrate
+    ```
+
+8. **Create a superuser:**
+ Admin
+    ```bash
+    python3 manage.py createsuperuser
+    ```
+
+9. **Start the development server:**
+
+    ```bash
+    python3 manage.py runserver
+    
+    ```Visit http://127.0.0.1:8000/ to see your project a web browser.
+## Celery & RabbitMQ Integration
+-**Start RabbitMQ**
+Download and ensure RabbitMQ is installed and running on your machine.
+-**Start Celery Worker**
+```bash
+celery -A EventTracker worker --pool=solo --loglevel=info
+```
+-*This starts the worker that processes asynchronous tasks (like sending emails).*
+
+## Usage Flow
+
+### Employee Creation and Authentication:
+-Admin creates a new employee through the form.
+- The system generates a password and attaches it to the user.
+- A post-save signal fires, triggering a Celery task to send a credentials email using password_email.html.
+- The email is queued in RabbitMQ and sent by a Celery worker.
+- Users can log in using their credentials.
+### Event Assignment Management
+
+- A manager opens the "Add new assignment" modal.
+- The manager selects an event and department.
+- An AJAX call filters the employee dropdown to show only Supervised learning-recommended employees for that event and department.
+- The manager selects a recommended employee and completes the assignment.
+### Model Training
+- The model was trained using a supervised learning approach on synthetic data that we generated to mimic real-world scenarios of employee assignments to events.
+### Event Reporting Interface
+- Employees report their events activities through a standardized form.
+- Reports can include text and multimedia files partaining the event.
+- Integrates [Django Summernote](https://github.com/summernote/django-summernote) to allow rich text editing for reports, enabling users to create and edit reports with a user-friendly, WYSIWYG interface.
+
+### Multimedia Support
+
+- Users can upload files as part of their reports.
+
+### Report Submission
+
+- Employees submit their reports online.
+- Submitted reports are stored in the system for review and download.
+
+### Review and Download Workflow
+
+- Supervisors review submitted reports and rate the report as performance of the employee.
+- Feedback can be provided, and reports can be downloaded.
+
+### Search and Filtering
+
+- Users can search and filter events and reports by their preffered fields data.
+
+### Data Security and Privacy
+
+- The system adheres to data security standards to protect sensitive information of the employees.
+
+### Analytics and Insights
+
+- Graphical tabulation of data in some of system domains, for faster analysis and insight.
+
+### Mobile Compatibility
+
+- The system is responsive and accessible on mobile devices.
 
 ## Visuals
 
@@ -42,114 +203,6 @@ EventTracker is a Django-based application designed to manage events, assignment
 
 ### Workflow Demonstration
 ![Workflow video](EventTracker/static/images/system.gif)
-
-## Installation
-
-### Prerequisites
-
-- Python 3.11.8
-- RabbitMQ
-- MySQL 
-
-### Steps
-
-1. **Clone the repository:**
-
-    ```bash
-    git clone https://github.com/JOSEPH-MUGO/
-    ```
-
-3. **Create and activate a virtual environment:**
-
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate  # On Window use `venv\Scripts\activate`
-    ```
-   
-
-4. **Install dependencies:**
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-5. **Configure the database:**
-   Update the `DATABASES` setting in `settings.py` with your database credentials.
-
-6. **Run migrations:**
-
-    ```bash
-    python manage.py migrate
-    ```
-
-7. **Create a superuser:**
- Admin
-    ```bash
-    python3 manage.py createsuperuser
-    ```
-
-8. **Start the development server:**
-
-    ```bash
-    python3 manage.py runserver
-    ```
-
-## Usage
-
-### User Authentication
--Login to the system as admin first using the superuser credentials.
-- New users can be created by the admin through the admin interface.
-- Users can log in using their credentials.
-### Employee / Users Management
-- Authorized personnel can create, manage users account.
-- Adding new users to the system
-- Updating the user account if need.
-- Delete user account in the system.
-### Event Assignment Management
-
-- Authorized personnel can Manage event assignment easily such as creating, updating, deleting and assign events to employees/users.
-- Event details include Category, Title, date, location, venue, description, and assigned employees.
-
-### Event Reporting Interface
-
-- Employees can report their activities using a simple form.
-- Reports can include text and multimedia files partaining the event.
-
-### Multimedia Support
-
-- Users can upload files as part of their reports.
-
-### Report Submission
-
-- Employees submit their reports online.
-- Submitted reports are stored in the system for review and download.
-
-### Review and Download Workflow
-
-- Supervisors review submitted reports.
-- Feedback can be provided, and reports can be downloaded.
-
-### Notification System
-
-- Notifications are sent for authorization, event assignments and report submissions.
-
-### Search and Filtering
-
-- Users can search and filter events and reports by their preffered fields data.
-
-### Data Security and Privacy
-
-- The system adheres to data security standards to protect sensitive information of the employees.
-
-### Analytics and Insights
-
-- Graphical tabulation of data in some of system domains, for faster analysis and insight.
-
-### Mobile Compatibility
-
-- The system is responsive and accessible on mobile devices.
-
-
 
 ## Contributing
 
