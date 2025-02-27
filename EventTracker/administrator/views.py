@@ -239,4 +239,4 @@ def notifications(request):
         'notifications': notifications,
         'unread_notifications_count': notifications.count(),
     }
-    return render(request, 'EventRecord/notification.html', context)
+    return render(request, 'EventRecord/report_assign.html', context)
