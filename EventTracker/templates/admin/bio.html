@@ -1,3 +1,4 @@
+<!-- bio.html -->
 <div class="modal fade" id="profileModal">
     <div class="modal-dialog">
         <div class="modal-content" id="profileModalContent">
@@ -5,7 +6,8 @@
         </div>
     </div>
 </div>
-    {% block custom_js %}
+
+{% block custom_js %}
 <script>
 $(document).ready(function() {
     // Initialize Select2 when modal is shown
@@ -29,6 +31,7 @@ $(document).ready(function() {
             },
             error: function(xhr, status, error) {
                 console.log("Error loading profile form: " + error);
+                alert('Failed to load profile form. Please try again.');
             }
         });
     });
@@ -57,9 +60,22 @@ $(document).ready(function() {
             },
             error: function(xhr, status, error) {
                 console.log("Error updating profile: " + error);
+                alert('Failed to update profile. Please try again.');
             }
         });
     });
+
+    // Handle image preview
+    $(document).on('change', '#id_profile_image', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#imagePreview').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(file);
+        }
+    });
 });
 </script>
-     {% endblock custom_js %}
+{% endblock %}
