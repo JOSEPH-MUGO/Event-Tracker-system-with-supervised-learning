@@ -81,18 +81,19 @@ def update_profile_ajax(request):
                 emp_form.save()
             return JsonResponse({'success': True})
         else:
-            errors = {}
-            errors.update(user_form.errors)
-            if emp_form:
-                errors.update(emp_form.errors)
-            return JsonResponse({'success': False, 'errors': errors}, status=400)
+            # Return form with errors
+            form_html = render_to_string('registration/profile_form.html', {
+                'user_update_form': user_form,
+                'employee_update_form': emp_form
+            }, request=request)
+            return JsonResponse({'success': False, 'form_html': form_html})
+    
     else:
         user_form = UserProfileUpdateForm(instance=user)
         emp_form = EmployeeProfileUpdateForm(instance=employee) if employee else None
-        # Render your bio.html as the update profile partial
-        return render(request, 'admin/bio.html', {
+        return render(request, 'registration/profile_form.html', {
             'user_update_form': user_form,
-            'employee_update_form': emp_form,
+            'employee_update_form': emp_form
         })
     
 def custom_logout(request):

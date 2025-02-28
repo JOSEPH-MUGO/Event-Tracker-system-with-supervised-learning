@@ -23,7 +23,7 @@
               </thead>
               <tbody>
                 {% for report in reports %}
-                <tr>
+                <tr id="report-{{ report.id }}" class="{% if report.id == highlight_id %}highlight-row{% endif %}">
                   
                   <td>
                     {% if report.status == 'approved' %}
@@ -47,6 +47,7 @@
                       <i class="fa fa-download"></i> Read and Download Report
                     </a>
                      {% if report.status == 'pending' %}
+                    
                     <button type="button" 
                       class="btn btn-info btn-sm rate-report btn-flat" 
                       data-toggle="modal" 
@@ -139,5 +140,28 @@ document.addEventListener("DOMContentLoaded", function() {
     {% endif %}
 });
 </script>
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get highlight ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const highlightId = urlParams.get('highlight');
+    
+    if (highlightId) {
+        const row = document.getElementById(`report-${highlightId}`);
+        
+        if (row) {
+            // Add highlight class
+            row.classList.add('highlight-row');
+            
+            // Scroll to the row
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Remove class after animation completes
+            setTimeout(() => {
+                row.classList.remove('highlight-row');
+            }, 5000); // 5 seconds (1s per animation * 5 iterations)
+        }
+    }
+});
+</script>
 {% endblock custom_js %}

@@ -70,6 +70,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 #custom context_processors
                 'account.context_processors.unread_notifications',
+                'administrator.context_processors.notification_context',
 
             ],
         },

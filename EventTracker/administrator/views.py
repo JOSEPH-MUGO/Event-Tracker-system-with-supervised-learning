@@ -234,9 +234,13 @@ def batch_approve_reports(request):
 
 
 def notifications(request):
-    notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
     context = {
-        'notifications': notifications,
-        'unread_notifications_count': notifications.count(),
+        'page_title': " All Notifications"
     }
     return render(request, 'EventRecord/report_assign.html', context)
+
+def mark_notification_read(request, notification_id):
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    notification.is_read = True
+    notification.save()
+    return redirect(f'{reverse("report")}?highlight={notification.report.id}')

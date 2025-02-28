@@ -11,5 +11,6 @@ urlpatterns = [
     path('get-assignments/', views.get_assignments, name='getAssignments'),
     path('download_report_pdf/<int:report_id>/', views.downloadReport, name='downloadReport'),
     path('reports/batch_approve/', views.batch_approve_reports, name='batch_approve_reports'),
-    path('notifications/',views.notifications, name='notifications'),
+    path('reports/', views.notifications, name='notifications'),
+    path('mark-notification-read/<int:notification_id>/', views.mark_notification_read, name='mark_notification_read'),
 ]

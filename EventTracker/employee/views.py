@@ -213,6 +213,7 @@ def submit_report(request, assign_id=None):
                            Notification.objects.create(
                                user=admin,
                                message=f"New report submitted by {assignment.employee} for assignment {assignment.event}.",
+                               report=report,
                                is_read=False
                             )
                
@@ -248,6 +249,8 @@ def evaluate_report(request, report_id):
         report.score = new_score
         report.status = 'approved' if new_score >= 50 else 'rejected'
         report.save()
+        if report.status == 'approved':
+            Notification.objects.filter(report=report).update(is_read=True)
 
         # Update employee performance.
         employee = report.submitted_by
@@ -265,5 +268,8 @@ def evaluate_report(request, report_id):
 
 def report(request):
     reports = Report.objects.all()
-    context ={'reports':reports,'page_title':"Submited Reports"}
-    return render(request, 'EventRecord/report_assign.html',context)
+    return render(request, 'EventRecord/report_assign.html', {
+        'reports': reports,
+        'highlight_id': request.GET.get('highlight'),
+        'page_title': "Submitted Reports"
+    })

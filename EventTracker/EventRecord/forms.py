@@ -31,7 +31,7 @@ class EventForm(FormSettings):
         model= Event
         fields = ['event_type','title','description','required_skills','venue','location','start_date', 'end_date','status']
 
-    def clean_skills(self):
+    def clean_required_skills(self):
         required_skills = self.cleaned_data.get('required_skills')
         if not required_skills:
             raise forms.ValidationError("Please select at least one required skill for this event.")

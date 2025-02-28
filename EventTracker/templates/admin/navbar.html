@@ -14,34 +14,39 @@
        <!-- Notification System Start -->
         {% if request.user.user_type == '1' %}
         <li class="nav-item dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-    <!-- Use the context variable unread_notifications_count here -->
-    <i class="fa fa-bell" data-count="{{ unread_notifications_count }}"></i>
-    {% if unread_notifications_count > 0 %}
-      <span class="label label-danger">{{ unread_notifications_count }}</span>
-    {% endif %}
-  </a>
-  <ul class="dropdown-menu" style="width: 300px !important;">
-    {% if unread_notifications_count > 0 %}
-      <li class="header text-center">
-        You have {{ unread_notifications_count }} unread notifications
-      </li>
-      <li>
-        <ul class="menu">
-          {% for note in unread_notifications %}
-            <li><a href="#">{{ note.message }}</a></li>
-          {% endfor %}
-        </ul>
-      </li>
-      <li class="footer text-center">
-        <a href="{% url 'notifications' %}">View all</a>
-      </li>
-    {% else %}
-      <li class="text-center"><em>No new notifications</em></li>
-    {% endif %}
-  </ul>
-</li>
-        {% endif %}
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-bell"></i>
+             {% if unread_notifications_count > 0 %}
+              <span class="label label-danger">{{ unread_notifications_count }}</span>
+             {% endif %}
+          </a>
+          <ul class="dropdown-menu">
+          {% if unread_notifications_count > 0 %}
+            <li class="header">You have {{ unread_notifications_count }} new notifications</li>
+              <li>
+              <ul class="menu">
+                {% for notification in unread_notifications %}
+                <li>
+                  <a href="{% url 'mark_notification_read' notification.id %}">
+                   {{ notification.message }}
+                    <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                  </a>
+                </li>
+                {% endfor %}
+                </ul>
+              </li>
+              <li class="footer">
+              {% if notifications.count > 3 %}
+                <a href="{% url 'notifications' %}">View All</a>
+              {% endif %}
+              </li>
+              {% else %}
+              <li class="text-center"><em>No new notifications</em></li>
+              {% endif %}
+          
+            </ul>
+          </li>
+          {% endif %}
 
         <!-- Notification System End -->
         <li class="dropdown user user-menu">

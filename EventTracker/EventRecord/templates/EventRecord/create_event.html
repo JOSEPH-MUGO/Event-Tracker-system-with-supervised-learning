@@ -79,50 +79,64 @@
         </button>
         <h4 class="modal-title"><b>Add New Event</b></h4>
       </div>
-      <div class="modal-body">
-        <form class="form-horizontal" method="POST" action="{% url 'viewEvents' %}">
-          {% csrf_token %}
-          <div class="row mb-4">
-            <div class="col-sm-6">
-              {% for field in form1 %}
-                {% if field.name != 'start_date' and field.name != 'end_date' and field.name != 'description' %}
-                  <div class="form-group px-4" style="width:250px; margin:auto;">
-                    <span class="text-danger">{{ field.errors }}</span>
-                    {{ field.label_tag }}
-                    {{ field }}
-                  </div>
-                {% endif %}
-              {% endfor %}
-            </div>
-            <div class="col-sm-6">
-              <div class="form-group">
-                <span class="text-danger">{{ form1.start_date.errors }}</span>
-                {{ form1.start_date.label_tag }}
-                {{ form1.start_date }}
-              </div>
-              <div class="form-group">
-                <span class="text-danger">{{ form1.end_date.errors }}</span>
-                {{ form1.end_date.label_tag }}
-                {{ form1.end_date }}
-              </div>
-               
-              <div class="form-group">
-                <span class="text-danger">{{ form1.description.errors }}</span>
-                {{ form1.description.label_tag }}
-                {{ form1.description }}
-              </div>
-            </div>
+    <div class="modal-body">
+      <form class="form-horizontal" method="POST" action="{% url 'viewEvents' %}">
+        {% csrf_token %}
+        <div class="row mb-4">
+        <!-- Display non-field errors -->
+        {% if form1.non_field_errors %}
+          <div class="alert alert-danger col-12">
+            {% for error in form1.non_field_errors %}
+              {{ error }}<br>
+            {% endfor %}
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-danger btn-flat pull-left" data-dismiss="modal">
-              <i class="fa fa-close"></i> Close
-            </button>
-            <button type="submit" class="btn btn-success btn-flat" name="add">
-              <i class="fa fa-save"></i> Save
-            </button>
-          </div>
-        </form>
+        {% endif %}
+      
+        <div class="col-sm-6">
+          {% for field in form1 %}
+            {% if field.name != 'start_date' and field.name != 'end_date' and field.name != 'description' %}
+            <div class="form-group px-4" style="width:250px; margin:auto;">
+              <span class="text-danger">{{ field.errors }}</span>
+              {{ field.label_tag }}
+              {{ field }}
+              {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+              {% endif %}
+            </div>
+           {% endif %}
+          {% endfor %}
+        </div>
+        <div class="col-sm-6">
+        <!-- Date fields with error display -->
+        <div class="form-group">
+          <span class="text-danger">{{ form1.start_date.errors }}</span>
+          {{ form1.start_date.label_tag }}
+          {{ form1.start_date }}
+        </div>
+        <div class="form-group">
+          <span class="text-danger">{{ form1.end_date.errors }}</span>
+          {{ form1.end_date.label_tag }}
+          {{ form1.end_date }}
+        </div>
+        
+        <!-- Description field with error display -->
+        <div class="form-group">
+          <span class="text-danger">{{ form1.description.errors }}</span>
+          {{ form1.description.label_tag }}
+          {{ form1.description }}
+        </div>
       </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger btn-flat pull-left" data-dismiss="modal">
+        <i class="fa fa-close"></i> Close
+      </button>
+        <button type="submit" class="btn btn-success btn-flat" name="add">
+          <i class="fa fa-save"></i> Save
+        </button>
+       </div>
+      </form>
+     </div>
     </div>
   </div>
 </div>

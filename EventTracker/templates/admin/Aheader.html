@@ -88,4 +88,31 @@
       
     }
   </style>
+<style>
+@keyframes blink {
+    0% { background-color: rgba(255, 235, 59, 0.3); }
+    50% { background-color: transparent; }
+    100% { background-color: rgba(255, 235, 59, 0.3); }
+}
+
+.highlight-row {
+    animation: blink 1s ease-in-out 3 !important;
+    
+    background-color: rgba(59, 255, 229, 0.3);
+}
+</style>
+<style>
+.errorlist {
+    list-style: none;
+    padding-left: 0;
+    color: #dc3545;
+    font-size: 0.875em;
+}
+.has-error input,
+.has-error select,
+.has-error textarea {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
+}
+</style>
 </head>

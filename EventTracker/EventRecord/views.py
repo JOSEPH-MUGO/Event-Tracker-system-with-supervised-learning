@@ -15,7 +15,7 @@ from django.db import transaction
 
 
 def viewEvents(request):
-    events = Event.objects.order_by('-id').all()  # Fetch all events
+    events = Event.objects.order_by('-id').all()
     category = EventCategory.objects.all()
 
     form = EventForm(request.POST or None)
@@ -23,16 +23,20 @@ def viewEvents(request):
         'events': events,
         'form1': form,
         'category': category,
-        'page_title': "Events"
+        'page_title': "All Events"
     }
+    
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            messages.success(request, "New Event created ")
+            messages.success(request, "New Event created")
             return redirect(reverse('viewEvents'))
         else:
-            messages.error(request, "Oops! Form error")
-
+            # Add form errors to messages
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field.title()}: {error}")
+    
     return render(request, "EventRecord/create_event.html", context)
 
 def listEvents(request):
