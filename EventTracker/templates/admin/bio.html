@@ -1,37 +1,34 @@
-<!-- bio.html -->
-<div class="modal fade" id="profileModal">
-    <div class="modal-dialog">
+<!-- templates/admin/bio.html -->
+<div class="modal fade" id="profileModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" id="profileModalContent">
-            <!-- AJAX content will load here -->
+            <!-- AJAX content loads here -->
         </div>
     </div>
 </div>
 
-{% block custom_js %}
 <script>
 $(document).ready(function() {
-    // Initialize Select2 when modal is shown
-    $('#profileModal').on('shown.bs.modal', function () {
-        $('#skill_id').select2({
-            placeholder: 'Search and select skills',
-            allowClear: true,
-            dropdownParent: $('#profileModal')
-        });
-    });
-
-    // Handle update button click
+    // Handle Update button click
     $(document).on('click', '#update', function(e) {
         e.preventDefault();
+        e.stopPropagation(); // Prevent dropdown closing
+        
         $.ajax({
             url: "{% url 'update_profile_ajax' %}",
             type: "GET",
+            beforeSend: function() {
+                $('#profileModalContent').html('<div class="text-center p-4"><i class="fa fa-spinner fa-spin fa-3x"></i></div>');
+            },
             success: function(data) {
                 $('#profileModalContent').html(data);
+                initSelect2();
+                initImagePreview();
                 $('#profileModal').modal('show');
             },
-            error: function(xhr, status, error) {
-                console.log("Error loading profile form: " + error);
-                alert('Failed to load profile form. Please try again.');
+            error: function(xhr) {
+                console.error('Error:', xhr.responseText);
+                $('#profileModalContent').html('<div class="alert alert-danger">Error loading form</div>');
             }
         });
     });
@@ -39,43 +36,56 @@ $(document).ready(function() {
     // Handle form submission
     $(document).on('submit', '#profileUpdateForm', function(e) {
         e.preventDefault();
-        var formData = new FormData(this);
+        const form = $(this);
+        const formData = new FormData(form[0]);
         
         $.ajax({
-            url: "{% url 'update_profile_ajax' %}",
+            url: form.attr('action'),
             type: "POST",
             data: formData,
             processData: false,
             contentType: false,
-            success: function(data) {
-                if(data.success) {
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}" 
+            },
+            success: function(response) {
+                if(response.success) {
                     $('#profileModal').modal('hide');
-                    // Update profile image preview
-                    $('.user-image, .img-circle').attr('src', URL.createObjectURL(formData.get('profile_image')));
+                    // Update UI elements
+                    $('.user-image, .img-circle').attr('src', response.profile_image);
                     location.reload();
                 } else {
-                    // Re-render form with errors
-                    $('#profileModalContent').html(data.form_html);
+                    $('#profileModalContent').html(response.form_html);
+                    initSelect2();
+                    initImagePreview();
                 }
             },
-            error: function(xhr, status, error) {
-                console.log("Error updating profile: " + error);
-                alert('Failed to update profile. Please try again.');
+            error: function(xhr) {
+                console.error('Error:', xhr.responseText);
+                $('#profileModalContent').prepend('<div class="alert alert-danger">Update failed</div>');
             }
         });
     });
 
-    // Handle image preview
-    $(document).on('change', '#id_profile_image', function() {
-        const file = this.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                $('#imagePreview').attr('src', e.target.result);
+    function initSelect2() {
+        $('#skill_id').select2({
+            placeholder: 'Select skills',
+            dropdownParent: $('#profileModal'),
+            width: '100%'
+        });
+    }
+
+    function initImagePreview() {
+        $('#id_profile_image').on('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imagePreview').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(file);
             }
-            reader.readAsDataURL(file);
-        }
-    });
+        });
+    }
 });
 </script>
-{% endblock %}

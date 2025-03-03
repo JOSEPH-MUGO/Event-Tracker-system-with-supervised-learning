@@ -1,25 +1,53 @@
-<div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-    <h4 class="modal-title"><b>User Profile</b></h4>
+<div class="modal-header bg-primary">
+    <h4 class="modal-title text-white">Update Profile</h4>
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
 </div>
+
 <div class="modal-body">
-    <form class="form-horizontal" id="profileUpdateForm" method="POST" action="{% url 'update_profile_ajax' %}" 
-          enctype="multipart/form-data">
+    <form id="profileUpdateForm" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
+        
+        <!-- User Form -->
         <div class="form-group">
-            <legend>User Details</legend>
-            {{ user_update_form.as_p }}
-            {{ employee_update_form.as_p }}
+            <label>Profile Image</label>
+            <div class="custom-file">
+                {{ user_update_form.profile_image }}
+                <label class="custom-file-label" for="id_profile_image">Choose file</label>
+            </div>
+            <img id="imagePreview" src="{{ request.user.profile_image.url }}" class="img-thumbnail mt-2" style="max-width: 200px;">
         </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>First Name</label>
+                    {{ user_update_form.first_name }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Last Name</label>
+                    {{ user_update_form.last_name }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee Form -->
+        {% if employee_update_form %}
+        <div class="form-group">
+            <label>Phone Number</label>
+            {{ employee_update_form.phone }}
+        </div>
+
+        <div class="form-group">
+            <label>Skills</label>
+            {{ employee_update_form.skills }}
+        </div>
+        {% endif %}
+
         <div class="modal-footer">
-            <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal">
-                <i class="fa fa-close"></i> Close
-            </button>
-            <button type="submit" class="btn btn-success btn-flat" name="save">
-                <i class="fa fa-check-square-o"></i> Save
-            </button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
     </form>
 </div>

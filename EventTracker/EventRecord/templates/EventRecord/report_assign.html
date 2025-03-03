@@ -122,7 +122,7 @@
       var reportId = button.data('report-id'); // Extract report ID from data attribute
       
       var modal = $(this);
-      // Set the form action URL dynamically. Adjust the URL pattern as needed.
+      // Setting the form action URL dynamically. 
       modal.find('#rateReportForm').attr('action', '{% url "evaluate_report" report_id=0 %}'.replace('0', reportId));
   });
 </script>

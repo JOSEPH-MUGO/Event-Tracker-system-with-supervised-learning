@@ -68,7 +68,7 @@ def update_profile_ajax(request):
     user = request.user
     try:
         employee = user.employee
-    except Exception:
+    except AttributeError:
         employee = None
 
     if request.method == 'POST':
@@ -76,25 +76,32 @@ def update_profile_ajax(request):
         emp_form = EmployeeProfileUpdateForm(request.POST, instance=employee) if employee else None
 
         if user_form.is_valid() and (emp_form is None or emp_form.is_valid()):
-            user_form.save()
+            user = user_form.save()
             if emp_form:
                 emp_form.save()
-            return JsonResponse({'success': True})
-        else:
-            # Return form with errors
-            form_html = render_to_string('registration/profile_form.html', {
-                'user_update_form': user_form,
-                'employee_update_form': emp_form
-            }, request=request)
-            return JsonResponse({'success': False, 'form_html': form_html})
-    
-    else:
-        user_form = UserProfileUpdateForm(instance=user)
-        emp_form = EmployeeProfileUpdateForm(instance=employee) if employee else None
-        return render(request, 'registration/profile_form.html', {
+            
+            return JsonResponse({
+                'success': True,
+                'profile_image': user.profile_image.url if user.profile_image else ''
+            })
+        
+        # Form errors
+        form_html = render_to_string('registration/profile_form.html', {
             'user_update_form': user_form,
             'employee_update_form': emp_form
-        })
+        }, request=request)
+        return JsonResponse({'success': False, 'form_html': form_html})
+
+    # GET request
+    user_form = UserProfileUpdateForm(instance=user)
+    emp_form = EmployeeProfileUpdateForm(instance=employee) if employee else None
+    
+    form_html = render_to_string('registration/profile_form.html', {
+        'user_update_form': user_form,
+        'employee_update_form': emp_form
+    }, request=request)
+    
+    return JsonResponse({'form_html': form_html})
     
 def custom_logout(request):
     auth_logout(request)

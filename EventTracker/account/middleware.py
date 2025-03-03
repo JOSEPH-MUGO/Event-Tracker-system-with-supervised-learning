@@ -13,39 +13,52 @@ class AccountCheckMiddleWare(MiddlewareMixin):
         logger.debug(f"User:{user}, Module: {modulename}, Path: {request.path}")
 
         if user.is_authenticated:
-            # --------------------------
+           
             # For Admin (user_type '1')
-            # --------------------------
             if user.user_type == '1':
                 # Allow access to logout and authentication views
                 if modulename == 'django.contrib.auth.views':
                     return None
+                if request.path == reverse('logout'):
+                   return None
+                if modulename == 'administrator.views':
+                    return None
 
-                # Your existing admin logic
-                # ...
-
-            # --------------------------
             # For Employee (user_type '2')
-            # --------------------------
             elif user.user_type == '2':
                 # Allow access to logout and authentication views
                 if modulename == 'django.contrib.auth.views':
                     return None
-
-                # Your existing employee logic
-                # ...
-
+                if request.path == reverse('logout'):
+                   return None
+                if modulename =='administrator.views':
+                    messages.error(request, 'You do not have access to this resource')
+                    return redirect(reverse('login'))
+                
+                allowed_path = [
+                        reverse('listEvents')
+                    ]
+                if request.path in allowed_path:
+                    logger.debug('Allow access')
+                    return None
+                if modulename == 'employee.views':
+                    if 'employee_id' in view_kwargs:
+                        if str(view_kwargs['employee_id'])== str(user.id):
+                            return None
+                        else:
+                            messages.error(request,'You do not have permission to this resource')
+                            return redirect(reverse('login'))
+                        
+                    return None
+            
         else:
-            # --------------------------
             # Unauthenticated users
-            # --------------------------
             if request.path in [
                 reverse('login'),
                 reverse('password_reset'),
                 reverse('password_reset_confirm', kwargs={'uidb64': view_kwargs.get('uidb64'),
                                                              'token': view_kwargs.get('token')}),
-                reverse('password_reset_complete'),
-                reverse('logout'),  # Allow logout for unauthenticated users just in case
+                reverse('password_reset_complete') 
             ] or modulename == 'django.contrib.auth.views':
                 return None
 
@@ -54,5 +67,6 @@ class AccountCheckMiddleWare(MiddlewareMixin):
                 return redirect(reverse('login'))
             else:
                 return redirect(reverse('login'))
+        
 
         return None
