@@ -5,7 +5,8 @@
     <!-- Sidebar user panel -->
     <div class="user-panel">
       <div class="pull-left image">
-        <img src="{% static 'images/userplaceholder.png' %}" class="img-circle" alt="User Image">
+
+        <img src="{% if request.user.profile_image %}{{ request.user.profile_image.url }}{% else %}{% static 'images/userplaceholder.png' %}{% endif %}" class="img-circle" alt="User Image">
       </div>
       <div class="pull-left info">
         <p>{{ request.user }}</p>

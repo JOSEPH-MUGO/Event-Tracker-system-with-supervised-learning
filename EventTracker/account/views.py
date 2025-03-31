@@ -4,20 +4,17 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.db import transaction
-from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib import messages
 from django.db.models.query_utils import Q
 from .forms import *
-from django.http import JsonResponse
-from EventRecord.models import Event
-from employee.forms import EmployeeForm, EmployeeProfileUpdateForm
+from django.http import HttpResponse, JsonResponse
+from employee.forms import EmployeeForm
 from .models import User
 import random
 import string
-from smtplib import SMTPException
 from django.conf import settings
 
 
@@ -64,45 +61,38 @@ def custom_login(request):
 
     return render(request, 'registration/login.html')
 
+
 def update_profile_ajax(request):
-    user = request.user
-    try:
-        employee = user.employee
-    except AttributeError:
-        employee = None
-
-    if request.method == 'POST':
-        user_form = UserProfileUpdateForm(request.POST, request.FILES, instance=user)
-        emp_form = EmployeeProfileUpdateForm(request.POST, instance=employee) if employee else None
-
-        if user_form.is_valid() and (emp_form is None or emp_form.is_valid()):
-            user = user_form.save()
-            if emp_form:
-                emp_form.save()
-            
-            return JsonResponse({
-                'success': True,
-                'profile_image': user.profile_image.url if user.profile_image else ''
-            })
+    if request.method == "POST":
+        form = ProfileUpdateForm(
+            request.POST, 
+            request.FILES, 
+            instance=request.user,
+            user=request.user  # Make sure you're passing user to the form
+        )
+        if form.is_valid():
+            form.save()
+            return JsonResponse({"success": True})
         
-        # Form errors
-        form_html = render_to_string('registration/profile_form.html', {
-            'user_update_form': user_form,
-            'employee_update_form': emp_form
-        }, request=request)
-        return JsonResponse({'success': False, 'form_html': form_html})
-
-    # GET request
-    user_form = UserProfileUpdateForm(instance=user)
-    emp_form = EmployeeProfileUpdateForm(instance=employee) if employee else None
+        # Return form with errors
+        return JsonResponse({
+            "success": False,
+            "form_html": render_to_string(
+                'admin/profile_update_form.html',
+                {'form': form},
+                request=request
+            )
+        }, status=400)
     
-    form_html = render_to_string('registration/profile_form.html', {
-        'user_update_form': user_form,
-        'employee_update_form': emp_form
-    }, request=request)
-    
-    return JsonResponse({'form_html': form_html})
-    
+    # Handle GET requests
+    form = ProfileUpdateForm(user=request.user)
+    return HttpResponse(
+        render_to_string(
+            'admin/profile_update_form.html',
+            {'form': form},
+            request=request
+        )
+    )
 def custom_logout(request):
     auth_logout(request)
     messages.info(request, 'You have been logged out.')

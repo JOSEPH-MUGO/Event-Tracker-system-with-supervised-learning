@@ -1,6 +1,8 @@
 from django import forms
 from .models import *
 from .utils import validatePassword
+from employee.models import Employee,Skills
+
 
 from django.core.exceptions import ValidationError
 #from django.contrib.auth.models import User
@@ -71,11 +73,45 @@ class UserForm(FormSettings):
             user.save()
         return user,password
 #update form 
-class UserProfileUpdateForm(FormSettings, forms.ModelForm):
+class ProfileUpdateForm(FormSettings, forms.ModelForm):
+    phone = forms.CharField(max_length=15, required=False)
+    skills = forms.ModelMultipleChoiceField(
+        queryset=Skills.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2','style': 'width: 100%',
+            'multiple': 'multiple'}), required=False
+    )
+
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'profile_image']
+        fields = ['profile_image']
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(ProfileUpdateForm, self).__init__(*args, **kwargs)
+
+        if user:
+            self.fields['profile_image'].initial = user.profile_image
+
+        if user and hasattr(user, 'employee'):
+            self.fields['phone'].initial = user.employee.phone
+            self.fields['skills'].initial = user.employee.skills.all()
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+    
+           # Handle profile image update
+        profile_image = self.cleaned_data.get('profile_image')
+        if profile_image:
+           user.profile_image = profile_image
+
+        if commit:
+           user.save()
+           if hasattr(user, 'employee'):
+               employee = user.employee
+               employee.phone = self.cleaned_data.get('phone', employee.phone)
+               employee.skills.set(self.cleaned_data.get('skills', employee.skills.all()))
+               employee.save()
+        return user
 
 class PasswordResetForm(PasswordResetForm):
     email = forms.EmailField(

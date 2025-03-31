@@ -17,4 +17,5 @@ urlpatterns = [
     path('register/',views.register, name='register'),
     path('profile/update_ajax/',views.update_profile_ajax, name='update_profile_ajax'),
     
+    
 ]

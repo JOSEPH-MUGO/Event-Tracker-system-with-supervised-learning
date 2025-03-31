@@ -129,7 +129,23 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   $(function() {
-    // Event Categories Chart
+    // Function to generate a random color
+    function getRandomColor() {
+        return `rgba(${Math.floor(Math.random() * 256)}, 
+                     ${Math.floor(Math.random() * 256)}, 
+                     ${Math.floor(Math.random() * 256)}, 0.9)`;
+    }
+
+    // Generate an array of random colors based on the number of data points
+    function generateRandomColors(count) {
+        let colors = [];
+        for (let i = 0; i < count; i++) {
+            colors.push(getRandomColor());
+        }
+        return colors;
+    }
+
+    // Event Categories Chart (Bar Chart)
     var ctxCategories = document.getElementById('categoriesChart').getContext('2d');
     var labelsCategories = [{% for category in event_categories %}'{{ category.category }}',{% endfor %}];
     var dataCategories = [{% for category in event_categories %}{{ category.event_count }},{% endfor %}];
@@ -142,7 +158,7 @@
                 label: 'Number of Events',
                 data: dataCategories,
                 backgroundColor: 'rgba(60,141,188,0.9)',
-                borderColor: 'rgba(60,141,188,0.8)',
+                borderColor: 'rgba(60,141,187,0.8)',
                 borderWidth: 1
             }]
         },
@@ -157,7 +173,7 @@
         }
     });
 
-    // Employee Assignment Chart
+    // Employee Assignment Chart (Pie Chart)
     var ctxEmployees = document.getElementById('employeeAssignmentChart').getContext('2d');
     var labelsEmployees = [{% for event in events %}'{{ event.title }}',{% endfor %}];
     var dataEmployees = [{% for event in events %}{{ event.employee_count }},{% endfor %}];
@@ -169,20 +185,12 @@
             datasets: [{
                 label: 'Number of Employees Assigned',
                 data: dataEmployees,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.9)',
-                    'rgba(54, 162, 235, 0.9)',
-                    'rgba(255, 206, 86, 0.9)',
-                    'rgba(75, 192, 192, 0.9)',
-                    'rgba(153, 102, 255, 0.9)',
-                    'rgba(255, 159, 64, 0.9)',
-                    'rgba(255, 99, 132, 0.9)'
-                ],
+                backgroundColor: generateRandomColors(dataEmployees.length),
                 hoverOffset: 4
             }]
-        }, 
-        
+        }
     });
   });
 </script>
+
 {% endblock custom_js %}

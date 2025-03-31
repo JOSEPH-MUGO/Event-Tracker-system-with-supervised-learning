@@ -1,4 +1,3 @@
-
 {% load static %}
 <header class="main-header">
   <a href="#" class="logo">
@@ -43,14 +42,12 @@
               {% else %}
               <li class="text-center"><em>No new notifications</em></li>
               {% endif %}
-          
             </ul>
           </li>
           {% endif %}
-
         <!-- Notification System End -->
         <li class="dropdown user user-menu">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+          <a href="#" class="dropdown-toggle"  data-toggle="dropdown">
             <img src="{% if request.user.profile_image %}{{ request.user.profile_image.url }}{% else %}{% static 'images/userplaceholder.png' %}{% endif %}" class="user-image" alt="User Image">
               <span class="hidden-xs">{{ request.user }}</span>
           </a>
@@ -64,7 +61,7 @@
             </li>
             <li class="user-footer">
               <div class="pull-left">
-                <a href="#" class="btn btn-primary btn-flat" id="update">Update</a>
+                <a href="#" class="btn btn-primary btn-flat" id="updateProfileBtn">Update</a>
               </div>
               <div class="pull-right">
                 <a href="{% url 'logout' %}" class="btn btn-danger btn-flat">Logout</a>
@@ -76,6 +73,30 @@
     </div>
   </nav>
 </header>
+
+<!-- Profile Update Modal -->
+<div class="modal fade" id="updateProfileModal" tabindex="-1" role="dialog" aria-labelledby="updateProfileModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateProfileModalLabel">Update Profile</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="profileModalBody">
+        <!-- Form will be loaded here via AJAX -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript to trigger modal -->
+<script>
+  document.getElementById("updateProfileBtn").addEventListener("click", function() {
+    $("#updateProfileModal").modal("show");
+  });
+</script>
 
 {% block css_style %}
 <style>
@@ -101,4 +122,3 @@
 </style>
 {% endblock %}
 
-{% include "admin/bio.html" %}

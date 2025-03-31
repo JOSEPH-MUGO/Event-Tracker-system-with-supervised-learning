@@ -86,10 +86,81 @@
     }
     );
     $('#deparment_id').select2();
+    $('#id_skills').select2();
     $('#skill_id').select2({
             placeholder: 'Search and select skills',
             allowClear: true,
         });
+
 });
 </script>
+<script>
+$(document).ready(function() {
+    // Image preview initialization
+    function initImagePreview() {
+        $('#id_profile_image').off('change').on('change', function() {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imagePreview').attr('src', e.target.result).show();
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
 
+    // Select2 initialization
+    function initSelect2() {
+    $('#id_skills').select2({
+        placeholder: "Select skills",
+        width: '100%',
+        dropdownParent: $('#updateProfileModal')
+    });
+}
+
+    // Load modal form
+    $('#updateProfileBtn').click(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: "{% url 'update_profile_ajax' %}",
+            type: "GET",
+            beforeSend: function() {
+                $('#profileModalBody').html('<div class="text-center py-4"><i class="fa fa-spinner fa-spin fa-2x"></i> Loading...</div>');
+            },
+            success: function(response) {
+                $('#profileModalBody').html(response);
+                initSelect2();
+                initImagePreview();
+                $('#updateProfileModal').modal('show');
+            }
+        });
+    });
+
+    // Form submission
+    $(document).on('submit', '#profileUpdateForm', function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        
+        $.ajax({
+            url: "{% url 'update_profile_ajax' %}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    $('#updateProfileModal').modal('hide');
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    $('#profileModalBody').html(response.form_html);
+                    initSelect2();
+                    initImagePreview();
+                }
+            },
+            error: function(xhr) {
+                console.error('Submission error:', xhr.responseText);
+            }
+        });
+    });
+});
+</script>

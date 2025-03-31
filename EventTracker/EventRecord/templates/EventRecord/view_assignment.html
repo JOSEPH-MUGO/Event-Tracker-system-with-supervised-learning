@@ -12,6 +12,8 @@
         <div class="box-body">
           <p><strong>Category:</strong> {{ event.event_type }}</p>
           <p><strong>Description:</strong> {{ event.description }}</p>
+          <p><strong>Required Skills:</strong> {%if event.required_skills.all %} {% for skill in event.required_skills.all%}
+          {{skill.name}}{% if not forloop.last %}, {%endif%} {%endfor%} {% else %} no skill specified required {%endif%}</p>
           <p><strong>Venue:</strong> {{ event.venue }}</p>
           <p><strong>Location:</strong> {{ event.location }}</p>
           <p><strong>Start Date:</strong> {{ event.start_date }}</p>
